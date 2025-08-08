@@ -42,131 +42,8 @@ function useGameSounds(enabled: boolean) {
   };
 }
 
-// Types
-type Difficulty = "easy" | "medium" | "hard";
-
-type Category = "HIV Self-Testing" | "PrEP" | "Reproductive Health";
-
-interface Question {
-  id: string;
-  category: Category;
-  difficulty: Difficulty;
-  text: string;
-  options: string[];
-  answerIndex: number;
-  explanation?: string;
-}
-
-const DIFFICULTY_POINTS: Record<Difficulty, number> = {
-  easy: 10,
-  medium: 20,
-  hard: 30,
-};
-
-// Minimal question bank (extendable)
-const QUESTIONS: Question[] = [
-  // HIV Self-Testing
-  {
-    id: "hivst-e-1",
-    category: "HIV Self-Testing",
-    difficulty: "easy",
-    text: "What does HIV self-testing allow you to do?",
-    options: [
-      "Test yourself for HIV in private",
-      "Cure HIV at home",
-      "Donate blood at home",
-      "Vaccinate against HIV"
-    ],
-    answerIndex: 0,
-    explanation: "HIV self-testing lets you test yourself discretely and privately.",
-  },
-  {
-    id: "hivst-m-1",
-    category: "HIV Self-Testing",
-    difficulty: "medium",
-    text: "After a reactive (positive) self-test, what should you do next?",
-    options: [
-      "Start medication immediately without consultation",
-      "Confirm with a facility-based test and seek care",
-      "Ignore it if you feel healthy",
-      "Repeat the self-test every hour"
-    ],
-    answerIndex: 1,
-    explanation: "A reactive self-test should be confirmed at a clinic or lab before starting care.",
-  },
-  {
-    id: "hivst-h-1",
-    category: "HIV Self-Testing",
-    difficulty: "hard",
-    text: "Which window period best describes oral-fluid HIV self-tests?",
-    options: [
-      "1–2 days",
-      "About 3 months",
-      "1 year",
-      "There is no window period"
-    ],
-    answerIndex: 1,
-    explanation: "Oral tests can take up to 3 months to detect antibodies after exposure.",
-  },
-
-  // PrEP
-  {
-    id: "prep-e-1",
-    category: "PrEP",
-    difficulty: "easy",
-    text: "What is PrEP primarily used for?",
-    options: ["Preventing HIV", "Treating flu", "Lowering blood pressure", "Curing HIV"],
-    answerIndex: 0,
-    explanation: "Pre-Exposure Prophylaxis (PrEP) greatly reduces the risk of getting HIV.",
-  },
-  {
-    id: "prep-m-1",
-    category: "PrEP",
-    difficulty: "medium",
-    text: "To be most effective, PrEP should be taken...",
-    options: ["Only when you remember", "As prescribed, consistently", "Once per month", "Only after sex"],
-    answerIndex: 1,
-    explanation: "Consistency matters. Daily oral PrEP or per-event per provider guidance.",
-  },
-  {
-    id: "prep-h-1",
-    category: "PrEP",
-    difficulty: "hard",
-    text: "Which option is a long-acting form of PrEP available in some settings?",
-    options: ["Cabotegravir injection", "Vitamin C infusion", "Herbal syrup", "Penicillin injection"],
-    answerIndex: 0,
-    explanation: "Long-acting cabotegravir injections are an approved PrEP option in some countries.",
-  },
-
-  // Reproductive Health
-  {
-    id: "rh-e-1",
-    category: "Reproductive Health",
-    difficulty: "easy",
-    text: "Which is a modern contraceptive method?",
-    options: ["Condoms", "Garlic", "Cold showers", "Skipping meals"],
-    answerIndex: 0,
-    explanation: "Condoms are a modern method and also help prevent STIs including HIV.",
-  },
-  {
-    id: "rh-m-1",
-    category: "Reproductive Health",
-    difficulty: "medium",
-    text: "Which symptom warrants STI testing?",
-    options: ["Unusual discharge", "Hiccups", "Dry skin", "Sneezing"],
-    answerIndex: 0,
-    explanation: "Unusual discharge can signal an STI. Testing and treatment are important.",
-  },
-  {
-    id: "rh-h-1",
-    category: "Reproductive Health",
-    difficulty: "hard",
-    text: "Emergency contraception is most effective when taken within...",
-    options: ["120 hours", "2 weeks", "1 month", "It has no time limit"],
-    answerIndex: 0,
-    explanation: "Most effective within 120 hours (5 days), earlier is better.",
-  },
-];
+// Types moved to shared data module
+import { DIFFICULTY_POINTS, QUESTIONS, type Difficulty, type Question } from "@/data/questions";
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -209,12 +86,12 @@ function writeLeaderboard(list: ScoreEntry[]) {
 
 export default function Game() {
   usePageSEO(
-    "HIV & Reproductive Health Trivia Game | Learn & Play",
-    "Play an interactive trivia game on HIV self-testing, PrEP, and reproductive health. Choose difficulty, earn points, and climb the leaderboard."
+    "Health Quest — HIV, PrEP & Reproductive Health Trivia",
+    "Health Quest: mixed-topic trivia on HIV self-testing, PrEP, and reproductive health. Pick a difficulty, learn fast, and climb the leaderboard."
   );
 
   const [playerName, setPlayerName] = useState("");
-  const [category, setCategory] = useState<Category>("HIV Self-Testing");
+  
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [soundOn, setSoundOn] = useState(true);
   const sfx = useGameSounds(soundOn);
@@ -228,9 +105,9 @@ export default function Game() {
   const total = questions.length;
 
   const filtered = useMemo(() => {
-    const pool = QUESTIONS.filter(q => q.category === category && q.difficulty === difficulty);
-    return shuffle(pool).slice(0, 5);
-  }, [category, difficulty]);
+    const pool = QUESTIONS.filter(q => q.difficulty === difficulty);
+    return shuffle(pool).slice(0, 10);
+  }, [difficulty]);
 
   useEffect(() => {
     if (step === "setup") {
@@ -296,7 +173,7 @@ export default function Game() {
     <main className="container py-8">
       <header className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-semibold">HIV & Reproductive Health Trivia</h1>
+          <h1 className="text-3xl font-semibold">Health Quest — HIV, PrEP & Reproductive Health Trivia</h1>
           <p className="text-muted-foreground">Learn by playing. Choose your path and test your knowledge.</p>
         </div>
         <div className="flex gap-2">
@@ -314,7 +191,7 @@ export default function Game() {
           <Card className="hover-scale">
             <CardHeader>
               <CardTitle>Get Ready</CardTitle>
-              <CardDescription>Set your name, topic, and difficulty.</CardDescription>
+              <CardDescription>Set your name and difficulty.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -322,38 +199,22 @@ export default function Game() {
                 <Input placeholder="e.g., Ada" value={playerName} onChange={(e) => setPlayerName(e.target.value)} />
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <label className="text-sm">Category</label>
-                  <Select value={category} onValueChange={(v) => setCategory(v as Category)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="HIV Self-Testing">HIV Self-Testing</SelectItem>
-                      <SelectItem value="PrEP">PrEP</SelectItem>
-                      <SelectItem value="Reproductive Health">Reproductive Health</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm">Difficulty</label>
-                  <Select value={difficulty} onValueChange={(v) => setDifficulty(v as Difficulty)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select difficulty" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="easy">Easy</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="hard">Hard</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="space-y-2">
+                <label className="text-sm">Difficulty</label>
+                <Select value={difficulty} onValueChange={(v) => setDifficulty(v as Difficulty)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select difficulty" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="easy">Easy</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="hard">Hard</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="flex items-center justify-between pt-2">
-                <span className="text-sm text-muted-foreground">5 questions • {DIFFICULTY_POINTS[difficulty]} pts each</span>
+                <span className="text-sm text-muted-foreground">10 questions • {DIFFICULTY_POINTS[difficulty]} pts each</span>
                 <Button onClick={handleStart}>Start game</Button>
               </div>
             </CardContent>
@@ -365,9 +226,9 @@ export default function Game() {
               <CardDescription>Answer questions to earn points and learn.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-2 text-sm text-muted-foreground">
-              <p>• Choose a category: HIV self-testing, PrEP, or reproductive health.</p>
+              <p>• Mixed questions from HIV self-testing, PrEP, and reproductive health.</p>
               <p>• Select difficulty to adjust challenge and points.</p>
-              <p>• At the end, save your score to the local leaderboard.</p>
+              <p>• Answer 10 questions, then save your score to the local leaderboard.</p>
             </CardContent>
           </Card>
         </section>
@@ -379,7 +240,7 @@ export default function Game() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-xl">Question {currentIdx + 1} of {total}</CardTitle>
-                <span className="text-sm text-muted-foreground">{category} • {difficulty.toUpperCase()}</span>
+                <span className="text-sm text-muted-foreground">All Topics • {difficulty.toUpperCase()}</span>
               </div>
               <div className="pt-2">
                 <Progress value={progressValue} />
